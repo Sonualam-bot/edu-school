@@ -2,18 +2,36 @@
 
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 export default function AddSchool() {
   const form = useForm();
   const { register, handleSubmit, formState, reset } = form;
   const { errors, isSubmitSuccessful } = formState;
-  const [formInput, setFormInput] = useState([]);
 
-  const onSubmit = (data) => {
-    setFormInput(data);
+  const BASE_URL = "http://localhost:3000";
+
+  const onSubmit = async (data) => {
+    console.log(data);
+    try {
+      const response = await fetch(`${BASE_URL}/api/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        toast.success("School Added successfully");
+        reset();
+      } else {
+        toast.error("Failed to add school");
+      }
+    } catch (error) {
+      console.log("Error submitting form:", error);
+    }
   };
-
-  console.log({ formInput });
 
   useEffect(() => {
     if (isSubmitSuccessful) {
@@ -129,7 +147,7 @@ export default function AddSchool() {
         </p>
 
         <label
-          htmlFor="contact"
+          htmlFor="contact_number"
           className="leading-[8px] text-left block mb-[13px] mt-[20px] text-white text-[14px] font-[200] "
         >
           Enter School Contact Number
@@ -139,8 +157,8 @@ export default function AddSchool() {
             color: "black",
           }}
           type="number"
-          id="contact"
-          {...register("contact", {
+          id="contact_number"
+          {...register("contact_number", {
             required: {
               value: true,
               message: "School Contact is required",
@@ -150,7 +168,7 @@ export default function AddSchool() {
           className="block border-box w-full rounded-[4px] border border-[#FFFFFF] px-[15px] py-[10px] text-[14px]"
         />
         <p className="text-red-600 text-[14px] text-left ">
-          {errors.contact?.message}
+          {errors.contact_number?.message}
         </p>
 
         <label
@@ -179,7 +197,7 @@ export default function AddSchool() {
         </p>
 
         <label
-          htmlFor="email"
+          htmlFor="email_id"
           className="leading-[8px] text-left block mb-[13px] mt-[20px] text-white text-[14px] font-[200] "
         >
           Enter School Email
@@ -189,8 +207,8 @@ export default function AddSchool() {
             color: "black",
           }}
           type="text"
-          id="email"
-          {...register("email", {
+          id="email_id"
+          {...register("email_id", {
             required: "Email is required",
             pattern: {
               value:
@@ -202,7 +220,7 @@ export default function AddSchool() {
           className="block border-box w-full rounded-[4px] border border-[#FFFFFF] px-[15px] py-[10px] text-[14px]"
         />
         <p className="text-red-600 text-[14px] text-left ">
-          {errors.email?.message}
+          {errors.email_id?.message}
         </p>
 
         <button
