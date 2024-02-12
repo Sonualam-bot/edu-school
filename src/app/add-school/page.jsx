@@ -1,8 +1,15 @@
 "use client";
+import { v2 as cloudinary } from "cloudinary";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+
+cloudinary.config({
+  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
+  api_secret: process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET,
+});
 
 export default function AddSchool() {
   const form = useForm();
@@ -12,14 +19,28 @@ export default function AddSchool() {
   const BASE_URL = "http://localhost:3000";
 
   const onSubmit = async (data) => {
-    console.log(data);
     try {
+      const file = data.image?.[0];
+      const imageFile = new FormData();
+      imageFile.set("file", file);
+      let result = await fetch("/api/upload/", {
+        method: "POST",
+        body: imageFile,
+      });
+
+      result = await result.json();
+
+      console.log(result);
+
+      const sendData = { ...data, image: imageUrl };
+      console.log(sendData);
+
       const response = await fetch(`${BASE_URL}/api/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(sendData),
       });
 
       if (response.ok) {
@@ -29,7 +50,7 @@ export default function AddSchool() {
         toast.error("Failed to add school");
       }
     } catch (error) {
-      console.log("Error submitting form:", error);
+      console.log("Error submitting form:", error.message);
     }
   };
 
@@ -181,7 +202,7 @@ export default function AddSchool() {
           style={{
             color: "black",
           }}
-          type="text"
+          type="file"
           id="image"
           {...register("image", {
             required: {
