@@ -10,8 +10,6 @@ export default function AddSchool() {
   const { errors, isSubmitSuccessful } = formState;
   const [loading, setLoading] = useState(false);
 
-  const BASE_URL = "http://localhost:3000";
-
   const onSubmit = async (data) => {
     try {
       setLoading(true);
@@ -29,7 +27,7 @@ export default function AddSchool() {
 
         const sendData = { ...data, image: responseData?.cloudinaryResult };
 
-        const response = await fetch(`${BASE_URL}/api/add`, {
+        const response = await fetch("/api/add", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
