@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 
 const ViewSchools = () => {
   const [schoolData, setSchoolData] = useState(null);
-  const BASE_URL = "http://localhost:3000";
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await fetch(`${BASE_URL}/api/schools`);
+        const result = await fetch("/api/schools");
         const data = await result.json();
         setSchoolData(data.schools);
       } catch (error) {
