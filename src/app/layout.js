@@ -15,7 +15,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
-      <body className={inter.className}>
+      <body className={`inter.className flex flex-col h-screen `}>
         <Header />
         <ToastContainer
           position="top-right"
@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
           pauseOnHover
           theme="dark"
         />
-        {children}
+        <div className="flex-1">{children}</div>
         <Footer />
       </body>
     </html>

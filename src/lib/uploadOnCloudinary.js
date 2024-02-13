@@ -7,20 +7,11 @@ cloudinary.config({
 });
 
 const uploadOnCloudinary = async (localFilePath) => {
-  return new Promise((resolve, reject) => {
-    cloudinary.uploader.upload(
-      localFilePath,
-      (result) => {
-        resolve({
-          public_id: result.public_id,
-          url: result.url,
-        });
-      },
-      {
-        resource_type: "auto",
-      }
-    );
+  const result = await cloudinary.uploader.upload(localFilePath, {
+    folder: "avatarimages",
   });
+
+  return result;
 };
 
 export { uploadOnCloudinary };

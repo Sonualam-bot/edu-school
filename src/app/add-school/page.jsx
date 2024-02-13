@@ -1,56 +1,55 @@
 "use client";
-import { v2 as cloudinary } from "cloudinary";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-  api_secret: process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET,
-});
 
 export default function AddSchool() {
   const form = useForm();
   const { register, handleSubmit, formState, reset } = form;
   const { errors, isSubmitSuccessful } = formState;
+  const [loading, setLoading] = useState(false);
 
   const BASE_URL = "http://localhost:3000";
 
   const onSubmit = async (data) => {
     try {
+      setLoading(true);
       const file = data.image?.[0];
       const imageFile = new FormData();
       imageFile.set("file", file);
-      let result = await fetch("/api/upload/", {
+
+      let imageResponse = await fetch("/api/upload/", {
         method: "POST",
         body: imageFile,
       });
 
-      result = await result.json();
+      if (imageResponse.ok) {
+        const responseData = await imageResponse.json();
 
-      console.log(result);
+        const sendData = { ...data, image: responseData?.cloudinaryResult };
 
-      const sendData = { ...data, image: imageUrl };
-      console.log(sendData);
+        const response = await fetch(`${BASE_URL}/api/add`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(sendData),
+        });
 
-      const response = await fetch(`${BASE_URL}/api/add`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(sendData),
-      });
-
-      if (response.ok) {
-        toast.success("School Added successfully");
-        reset();
+        if (response.ok) {
+          toast.success("School Added successfully");
+          reset();
+        } else {
+          toast.error("Failed to add school");
+        }
       } else {
-        toast.error("Failed to add school");
+        console.error("Failed to upload image:", imageResponse.statusText);
       }
     } catch (error) {
       console.log("Error submitting form:", error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -247,10 +246,16 @@ export default function AddSchool() {
         <button
           className="text-white text-center w-full bg-black uppercase border-none mt-1 p-5 text-[16px] font-[100] tracking-[10px] "
           type="submit"
+          disabled={loading}
         >
-          Submit
+          {loading ? "Submitting..." : "Submit"}
         </button>
       </form>
+      {loading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"></div>
+        </div>
+      )}
     </section>
   );
 }
